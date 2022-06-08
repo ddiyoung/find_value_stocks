@@ -16,19 +16,9 @@ class CorrectionStocks:
 
 
     def init_save(self, start_date, end_date): #지정한 날짜로 부터 모든 데이터를 저장
-        start = datetime.strptime(start_date, "%Y-%m-%d")
-        end = datetime.strptime(end_date, "%Y-%m-%d")
-        date_list = [start + timedelta(days=x) for x in range(0, (end-start).days)]
-        for date in date_list:
-            self.daily = pd.DataFrame()  # daily 변수 초기화
-            print("start get_daily_concat : " + date.strftime("%Y-%m-%d"))
-            self._get_daily_concat(date.strftime("%Y-%m-%d"))
-            self._save_daily()
-
-
-
-    def _get_table_df(self): #table data 리턴
-        return self.table_df
+        self.daily = pd.DataFrame()
+        self._get_daily_concat(start_date, end_date)
+        self._save_daily()
 
 
     def _get_ohclv_data(self): #DB로 부터 table에 있는 데이터를 갖고오는 함수
@@ -41,13 +31,30 @@ class CorrectionStocks:
         except:
             pass
 
+    def _get_ohlcv_stock(self, stock_code):
+        sql = f"SELECT * FROM kospi_adjusted1 where Code = {stock_code}"
+
+        ohlcv_data = pd.DataFrame()
+        try:
+            ohlcv_data = pd.read_sql(
+                sql,
+                con=self.conn.create_engine()
+                )
+            self.conn.dispose_engine()
+        except:
+            pass
+
+        return ohlcv_data
+
+
 
     def _get_index_stock_date(self, stock_code, date): #stock code와 date를 기준으로 해당 데이터의 인덱스를 리턴하는 함수
         return self.table_df.index[(self.table_df['Code'] == stock_code) & (self.table_df['Date'] == date)].tolist()
 
 
     def _get_stock_date(self, stock_code, date): #stock code와 date를 기준으로 해당 dataframe을 리턴하는 함수
-        return self.table_df.iloc[self._get_index_stock_date(stock_code, date)[0]]
+        if self._get_index_stock_date(stock_code, date)[0]:
+            return self.table_df.iloc[self._get_index_stock_date(stock_code, date)[0]]
 
 
     def _update_stocks(self, stock_code, start_date, end_date): #ohlcv 테이블을 업데이트 해주는 함수
@@ -71,9 +78,10 @@ class CorrectionStocks:
 
 
 
-    def _get_daily_concat(self, date): #모든 stock_list의 수정주가 갖고오기
+    def _get_daily_concat(self, start_date, end_date): #모든 stock_list의 수정주가 갖고오기
         for code, name in self.stock_list[['Symbol', 'Name']].values:
-            ohlcv = fdr.DataReader(code, date, date)
+            print("Code : " + code + " | Name : " + name + " | get_daily_concat")
+            ohlcv = fdr.DataReader(code, start_date, end_date)
             ohlcv['Code'] = code
             ohlcv['Name'] = name
             self.daily = pd.concat([self.daily, ohlcv])
