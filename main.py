@@ -6,14 +6,18 @@ from CashFlow import Cash_Flow
 import pandas as pd
 
 def init_db():
-    correct_stock = CorrectionStocks()
+    #correct_stock = CorrectionStocks()
     income_stock = Income_stock()
-    bs_stock = Blance_sheet()
+    bs_stock = Balance_sheet()
     cf_stock = Cash_Flow()
-    correct_stock.init_save("2001-01-01", "2020-06-01")
+    #correct_stock.init_save("2001-01-01", "2020-06-01")
+    print("finish adjust")
     income_stock.init_save()
+    print("finish is")
     bs_stock.init_save()
+    print("finish bs")
     cf_stock.init_save()
+    print("finish cf")
 
 def main():
     init_db()

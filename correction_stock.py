@@ -5,14 +5,13 @@ from conn_db import DBController
 import sqlalchemy
 
 class CorrectionStocks:
-    table = 'kospi_adjusted1' #수정주가 테이블 이름
 
     def __init__(self):
         self.conn = DBController() #DB 연결
+        self.table = 'kospi_adjusted1' #수정주가 테이블 이름
         self.stock_list = fdr.StockListing('KRX').dropna() #krx의 stock list 불러오기
         self.daily = pd.DataFrame() #daily 변수 초기화
         self.table_df = pd.DataFrame() # DB의 테이블 불러올 변수 초기화
-        self._get_ohlcv_data('2019-03-01', '2022-03-31') #DB에서 table을 불러옴
 
 
     def init_save(self, start_date, end_date): #지정한 날짜로 부터 모든 데이터를 저장

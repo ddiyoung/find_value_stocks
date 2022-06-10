@@ -1,7 +1,7 @@
 from conn_db import DBController
 import pandas as pd
 import numpy as np
-from bs4 import BeauifulSoup
+from bs4 import BeautifulSoup
 from urllib.request import urlopen, Request
 from KrxCode import Krx_code
 import sqlalchemy

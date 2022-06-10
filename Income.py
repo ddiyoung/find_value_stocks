@@ -17,6 +17,7 @@ class Income_stock(Krx_code):
     def init_save(self):
         for code in self.krx_list.code:
             try:
+                print("Code : " + code)
                 consolidated_A_data = self.getIS(code, 'CONSOLIDATED', 'A')
                 consolidated_A_data.to_sql(name=self.table, con=self.conn.create_engine(), if_exists='append', index=False,
                                            dtype=None)
