@@ -29,11 +29,13 @@ class Income_stock(Krx_code):
                 unconsolidated_Q_data = self.getIS(code, ' UNCONSOLIDATED', 'Q')
                 unconsolidated_Q_data.to_sql(name=self.table, con=self.conn.create_engine(), if_exists='append', index=False,
                                              dtype=None)
-            except:
+            except Exception as e:
                 print("fail: " + code)
+                print(e)
+                pass
 
-    def _get_is(self, stock_cde, period):
-        sql = f"SELECT * FROM is_kr WHERE stock_code = {stock_cde} AND period = '{period}' AND rpt_type = 'Consolidated_Q'"
+    def _get_is(self, stock_code, period):
+        sql = f"SELECT * FROM is_kr WHERE stock_code = {stock_code} AND period = '{period}' AND rpt_type = 'Consolidated_Q'"
 
         try:
             self.is_data = pd.read_sql(
