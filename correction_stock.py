@@ -12,7 +12,7 @@ class CorrectionStocks:
         self.stock_list = fdr.StockListing('KRX').dropna() #krx의 stock list 불러오기
         self.daily = pd.DataFrame() #daily 변수 초기화
         self.table_df = pd.DataFrame() # DB의 테이블 불러올 변수 초기화
-        self._get_ohclv_data() #DB에서 table을 불러옴
+        self._get_ohlcv_data('2019-03-01', '2022-03-31') #DB에서 table을 불러옴
 
 
     def init_save(self, start_date, end_date): #지정한 날짜로 부터 모든 데이터를 저장
@@ -21,14 +21,16 @@ class CorrectionStocks:
         self._save_daily()
 
 
-    def _get_ohclv_data(self): #DB로 부터 table에 있는 데이터를 갖고오는 함수
+    def _get_ohlcv_data(self, start_date, end_date): #DB로 부터 table에 있는 데이터를 갖고오는 함수
+        sql = f"SELECT * FROM kospi_adjusted1 where Date(date) BETWEEN '{start_date}' AND '{end_date}'"
         try:
-            self.table_df = pd.read_sql_table(
-                self.table,
+            self.table_df = pd.read_sql(
+                sql,
                 con=self.conn.create_engine()
             )
             self.conn.dispose_engine()
-        except:
+        except Exception as e:
+            print(e)
             pass
 
     def _get_ohlcv_stock(self, stock_code):
@@ -41,7 +43,8 @@ class CorrectionStocks:
                 con=self.conn.create_engine()
                 )
             self.conn.dispose_engine()
-        except:
+        except Exception as e:
+            print(e)
             pass
 
         return ohlcv_data
@@ -103,7 +106,8 @@ class CorrectionStocks:
                                   'Date': sqlalchemy.types.DATE(),
 
                               })
-        except:
+        except Exception as e:
+            print(e)
             pass
 
         self.conn.dispose_engine()
