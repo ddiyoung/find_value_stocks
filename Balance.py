@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from KrxCode import Krx_code
 from urllib.request import urlopen, Request
-import sqlalchemy
+from bs4 import BeautifulSoup
 
 class Balance_sheet(Krx_code):
 
@@ -89,13 +89,13 @@ class Balance_sheet(Krx_code):
                      'curassets6', 'curassets7', 'curassets8', 'curassets9', 'curassets10', 'curassets11', #8
                      'ltassets', 'ltassets1', 'ltassets2', 'ltassets3', 'ltassets4', 'ltassets5', 'ltassets6', 'ltassets7', #8
                      'ltassets8', 'ltassets9', 'ltassets10', 'ltassets11', 'ltassets12', 'ltassets13', 'finassets', #7
-                     'liab', 'curliab', 'curliab1', 'curliab2', 'curliab3', 'curliab4', 'curliab5' #7
+                     'liab', 'curliab', 'curliab1', 'curliab2', 'curliab3', 'curliab4', 'curliab5', #7
                      'curliab6', 'curliab7', 'curliab8', 'curliab9', 'curliab10', 'curliab11', 'curliab12', 'curliab13', #8
                      'ltliab', 'ltliab1', 'ltliab2', 'ltliab3', 'ltliab4', 'ltliab5', 'ltliab6', #7
                      'ltliab7', 'ltliab8', 'ltliab9', 'ltliab10', 'ltliab11', 'ltliab12', 'finliab', #7
                      'equity', 'equity1', 'equity2', 'equity3', 'equity4', 'equity5', 'equity6', 'equity7', 'equity8' ] #9
 
-        if rpt_type.uppder() == 'CONSOLIDATED':
+        if rpt_type.upper() == 'CONSOLIDATED':
             url = f'https://comp.fnguide.com/SVO2/ASP/SVD_Finance.asp?pGB=1&gicode=A{stock_code}&cID=&MenuYn=Y&ReportGB=D&NewMenuID=103&stkGb=701'
 
         else:
@@ -114,7 +114,7 @@ class Balance_sheet(Krx_code):
             bs_a = soup.find(id = 'divDaechaY')
             num_col = 3
         else:
-            bs_a = soup.find(id = 'divDaechQ')
+            bs_a = soup.find(id = 'divDaechaQ')
             num_col = 4
 
         bs_a = bs_a.find_all(['tr'])
@@ -141,6 +141,8 @@ class Balance_sheet(Krx_code):
         else:
             globals()['equity1'], globals()['equity8'] = [np.NaN] * num_col, [np.NaN] * num_col
 
+
+
         bs_domestic = pd.DataFrame({"stock_code": stock_code, "period": period, #2
                                     "Assets_Total": assets, "Current_Assets_Total": curassets,
                                     "Current_Inventory": curassets1, "Current_Bio_Assets": curassets2,
@@ -159,7 +161,7 @@ class Balance_sheet(Krx_code):
                                     "Other_Fin_Assets": finassets,
                                     "Liabilities_Total": liab, "Current_Liab_Total": curliab, "Current_Bonds": curliab1,
                                     "Current_Loans": curliab2, "Current_Portion_LT_Liab": curliab3,
-                                    "Current_Fin_Liab": curliab4, "Current_Payables": curliab5,
+                                    "Current_Fin_Liab": curliab4,"Current_Payables": curliab5,
                                     "Current_Emp_Benefits": curliab6, "Current_Provisions": curliab7,
                                     "Current_Tax_Liab": curliab8, "Current_Entrusted_Liab": curliab9,
                                     "Current_Returned_Goods_Liab": curliab10, "Current_Emissions_Allowance_Liab": curliab11,

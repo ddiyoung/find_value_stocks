@@ -3,14 +3,17 @@ from correction_stock import CorrectionStocks
 from Balance import Balance_sheet
 from Income import Income_stock
 from CashFlow import Cash_Flow
+from KrxShare import Krx_shares
+from KrxShare import Krx_shares
 import pandas as pd
 
 def init_db():
-    #correct_stock = CorrectionStocks()
+    correct_stock = CorrectionStocks()
     income_stock = Income_stock()
     bs_stock = Balance_sheet()
     cf_stock = Cash_Flow()
-    #correct_stock.init_save("2001-01-01", "2020-06-01")
+    shares = Krx_shares()
+    correct_stock.init_save("2001-01-01", "2020-06-01")
     print("finish adjust")
     income_stock.init_save()
     print("finish is")
@@ -18,6 +21,8 @@ def init_db():
     print("finish bs")
     cf_stock.init_save()
     print("finish cf")
+    shares.init_save()
+    print("finish krx_share")
 
 def main():
     init_db()

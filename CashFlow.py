@@ -17,19 +17,19 @@ class Cash_Flow(Krx_code):
     def init_save(self):
         for code in self.krx_list.code:
             try:
-                consolidated_A_data = self._store_bs(code, 'CONSOLIDATED', 'A')
+                consolidated_A_data = self._store_cf(code, 'CONSOLIDATED', 'A')
                 consolidated_A_data.to_sql(name=self.table, con=self.conn.create_engine(), if_exists='append',
                                            index=False,
                                            dtype=None)
-                consolidated_Q_data = self._store_bs(code, 'CONSOLIDATED', 'Q')
+                consolidated_Q_data = self._store_cf(code, 'CONSOLIDATED', 'Q')
                 consolidated_Q_data.to_sql(name=self.table, con=self.conn.create_engine(), if_exists='append',
                                            index=False,
                                            dtype=None)
-                unconsolidated_A_data = self._store_bs(code, 'UNCONSOLIDATED', 'A')
+                unconsolidated_A_data = self._store_cf(code, 'UNCONSOLIDATED', 'A')
                 unconsolidated_A_data.to_sql(name=self.table, con=self.conn.create_engine(), if_exists='append',
                                              index=False,
                                              dtype=None)
-                unconsolidated_Q_data = self._store_bs(code, ' UNCONSOLIDATED', 'Q')
+                unconsolidated_Q_data = self._store_cf(code, ' UNCONSOLIDATED', 'Q')
                 unconsolidated_Q_data.to_sql(name=self.table, con=self.conn.create_engine(), if_exists='append',
                                              index=False,
                                              dtype=None)
@@ -101,7 +101,7 @@ class Cash_Flow(Krx_code):
             'A' (연간), 'Q' (분기)
         """
 
-        items_en = ['cfo', 'cfo1', 'cfo2', 'cfo4', 'cfo5', 'cfo6', 'cfo7',
+        items_en = ['cfo', 'cfo1', 'cfo2', 'cfo3' ,'cfo4', 'cfo5', 'cfo6', 'cfo7',
                     'cfi', 'cfi1', 'cfi2', 'cfi3', 'cff', 'cff1', 'cff2', 'cff3',
                     'cff4', 'cff5', 'cff6', 'cff7', 'cff8', 'cff9']
 
@@ -151,13 +151,13 @@ class Cash_Flow(Krx_code):
             "CFO_Total": cfo, "Net_Income_Total": cfo1, "Cont_Biz_Before_Tax": cfo2,
             "Add_Exp_WO_CF_Out": cfo3, "Ded_Rev_WO_CF_In": cfo4, "Chg_Working_Capital": cfo5,
             "CFO": cfo6, "Other_CFO": cfo7,
-            "CFI_Total": cfi, "CFI_In": cfi1, "CFI_Out": cfi2, "Other_CFI": cf3,
+            "CFI_Total": cfi, "CFI_In": cfi1, "CFI_Out": cfi2, "Other_CFI": cfi3,
             "CFF_Total": cff, "CFF_In": cff1, "CFF_Out": cff2, "Other_CFF": cff3,
             "Other_CF": cff4, "Chg_CF_Consolidation": cff5, "Forex_Effect": cff6,
             "Chg_Cash_and_Cash_Equivalents": cff7, "Cash_and_Cash_Equivalents_Beg": cff8,
-            "Cash_and_Cash_Equivalents_End": cf9
+            "Cash_and_Cash_Equivalents_End": cff9
         })
 
-        cf_domestic['rpt_type'] = rpt_type
+        cf_domestic['rpt_type'] = rpt_type + '_' + freq.upper()
 
         return cf_domestic
