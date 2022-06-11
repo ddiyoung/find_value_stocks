@@ -8,14 +8,14 @@ from bs4 import BeautifulSoup
 class Balance_sheet(Krx_code):
 
     def __init__(self):
-        super().__init__()
-        self.conn = DBController()
-        self.table = 'bs_kr'
-        self.bs_data = pd.DataFrame()
+        super().__init__() #Krx_code Init
+        self.conn = DBController() #DB Controller 불러오기
+        self.table = 'bs_kr' #bs 저장할 테이블 이름 지정
+        self.bs_data = pd.DataFrame() #data를 저장해둘 DataFrame
 
-    def init_save(self):
-        for code in self.krx_list.code:
-            try:
+    def init_save(self): #DB 초기 데이터 입력 함수
+        for code in self.krx_list.code: #krx_list.code 는 Krx_code 클래스 안에 있는 변수
+            try: #각 데이터에 대하여 저장 시작 try, except 문법을 통해서 안정성 확보
                 consolidated_A_data = self._store_bs(code, 'CONSOLIDATED', 'A')
                 consolidated_A_data.to_sql(name=self.table, con=self.conn.create_engine(), if_exists='append',
                                            index=False,
@@ -33,21 +33,21 @@ class Balance_sheet(Krx_code):
                                              index=False,
                                              dtype=None)
             except Exception as e:
-                print("fail: " + code)
+                print("fail: " + code) #저장 실패한 코드에 대하여 출력
                 print(e)
                 pass
 
-    def _get_bs(self, stock_code, period):
-        sql = f"SELECT * FROM {self.table} WHERE stock_code = {stock_code} AND period = '{period}' AND rpt_type = 'Consolidated_Q'"
+    def _get_bs(self, stock_code, period): #DB에 저장한 bs 데이터에 대하여 불러옴
+        sql = f"SELECT * FROM {self.table} WHERE stock_code = '{stock_code}' AND period = '{period}' AND rpt_type = 'Consolidated_Q'"
 
-        try:
+        try: #try exception 문법을 활용하여 안정성 확보
             self.bs_data = pd.read_sql(
                 sql,
                 con = self.conn.create_engine()
             )
             self.conn.dispose_engine()
 
-            self.bs_data = self.bs_data.rename(columns={
+            self.bs_data = self.bs_data.rename(columns={ #불러온 데이터에 대하여 이름 가공 처리
                 'Assets_Total': '자산',
                 'Current_Assets_Total': '유동자산',
                 'LT_Assets_Total': '비유동자산',
@@ -56,7 +56,7 @@ class Balance_sheet(Krx_code):
                 'Current_Liab_Total': '유동부채',
                 'LT_Liab_Total': '비유동부채',
                 'Other_Fin_Liab_Total': '기타금융업부채',
-                'Equity_Total': '자본',
+                'Equity_total': '자본',
                 'Paid_In_Capital': '자본금',
                 'Contingent_Convertible_Bonds': '신종자본증권',
                 'Capital_Surplus': '자본잉여금',
@@ -74,7 +74,7 @@ class Balance_sheet(Krx_code):
             pass
 
 
-    def _store_bs(self, stock_code, rpt_type, freq):
+    def _store_bs(self, stock_code, rpt_type, freq): #bs 데이터에 대하여 크롤링을 하는 함수
         """
         [FnGuide] 공시기업의 최근 3개 연간 및 4개 분기 재무상태표를 수집하는 함수
 

@@ -14,6 +14,7 @@ class Krx_shares:
         self.krx_list = pd.DataFrame()
         self.krx_shares = pd.DataFrame()
         self._get_krx_code()
+        self.share_df = pd.DataFrame()
 
     def init_save(self):
         start_date = '2000-01-01'
@@ -29,6 +30,53 @@ class Krx_shares:
                 print(e)
                 pass
 
+    def _get_share(self, term):
+        # 분기별 시작날까/종료날짜 설정
+        if term[5] == '1':  # 1분기 (1월~3월)
+            start_date = term[0:4] + '-01-01'
+            end_date = term[0:4] + '-03-31'
+            period = term[0:4] + '/03'
+
+        elif term[5] == '2':  # 2분기 (4월~6월)
+            start_date = term[0:4] + '-04-01'
+            end_date = term[0:4] + '-06-30'
+            period = term[0:4] + '/06'
+
+        elif term[5] == '3':  # 3분기 (7월~9월)
+            start_date = term[0:4] + '-07-01'
+            end_date = term[0:4] + '-09-30'
+            period = term[0:4] + '/09'
+
+        elif term[5] == '4':  # 4분기 (10월~12월)
+            start_date = term[0:4] + '-10-01'
+            end_date = term[0:4] + '-12-31'
+            period = term[0:4] + '/12'
+
+        sql = f"SELECT * FROM {self.table} where Date(TRD_DD) BETWEEN '{start_date}' AND '{end_date}'"
+
+        try:
+            self.share_df = pd.read_sql(
+                sql,
+                con = self.conn.create_engine()
+            )
+            self.conn.dispose_engine()
+
+        except Exception as e:
+            print(e)
+            pass
+
+        self.share_df = self.share_df.rename(columns={
+            'TRD_DD': 'date',
+            'Code' : 'stock_code',
+        })
+
+        self.share_df = self.share_df.drop_duplicates()
+
+        self.share_df['date'] = self.share_df['date'].apply(lambda x: x.strftime('%Y-%m-%d'))
+
+        self.share_df['MKTCAP'] = self.share_df['MKTCAP'].str.replace(',', "")
+        self.share_df['LIST_SHRS'] = self.share_df['LIST_SHRS'].str.replace(',', "")
+
     def _get_krx_code(self):
         data = {
             'locale': 'ko_KR',
@@ -41,6 +89,7 @@ class Krx_shares:
         df = pd.read_json(req.text)['block1']
         df = pd.json_normalize(df)
         self.krx_list = df.set_index("short_code", drop= False)
+        return self.krx_list
 
 
     def _store_stock_shares(self, krx, start_date, end_date):

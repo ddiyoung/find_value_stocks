@@ -7,12 +7,12 @@ from KrxCode import Krx_code
 import sqlalchemy
 
 
-class Cash_Flow(Krx_code):
+class Cash_Flow(Krx_code): #cf 재무제표에 대한 클래스
     def __init__(self):
-        super().__init__()
-        self.conn = DBController()
-        self.table = 'cf_kr'
-        self.cf_data = pd.DataFrame()
+        super().__init__() #Krx_code 클래스에 대한 init 작업
+        self.conn = DBController() #DBController 연결
+        self.table = 'cf_kr' #저장할 테이블 이름 지정
+        self.cf_data = pd.DataFrame() #cf_data를 담고있을 DataFrame
 
     def init_save(self):
         for code in self.krx_list.code:
@@ -40,7 +40,7 @@ class Cash_Flow(Krx_code):
 
 
     def _get_cf(self, stock_code, period):
-        sql = f"SELECT * FROM {self.table} WHERE stock_code = {stock_code} AND rpt_type = 'Consolidated_Q'"
+        sql = f"SELECT * FROM {self.table} WHERE stock_code = '{stock_code}' AND period='{period}' AND rpt_type = 'Consolidated_Q'"
 
         try:
             self.cf_data = pd.read_sql(
@@ -50,6 +50,7 @@ class Cash_Flow(Krx_code):
             self.conn.dispose_engine()
 
             self.cf_data = self.cf_data.rename(columns={
+                'stock_Code': 'stock_code',
                 'CFO_Total': '영업활동으로인한현금흐름',
                 'Net_Income_Total': '당기순손익',
                 'Cont_Biz_Before_Tax': '법인세비용차감전계속사업이익',
@@ -87,6 +88,8 @@ class Cash_Flow(Krx_code):
 
                            '영업투자재무활동기타현금흐름', '연결범위변동으로인한현금의증가', '환율변동효과',
                            '현금및현금성자산의증가', '기초현금및현금성자산', '기말현금및현금성자산']]
+
+
         except Exception as e:
             print(e)
             pass
@@ -147,7 +150,7 @@ class Cash_Flow(Krx_code):
                 globals()[item] = temps
 
         cf_domestic = pd.DataFrame({
-            "stock_Code": stock_code, "period": period,
+            "stock_code": stock_code, "period": period,
             "CFO_Total": cfo, "Net_Income_Total": cfo1, "Cont_Biz_Before_Tax": cfo2,
             "Add_Exp_WO_CF_Out": cfo3, "Ded_Rev_WO_CF_In": cfo4, "Chg_Working_Capital": cfo5,
             "CFO": cfo6, "Other_CFO": cfo7,
